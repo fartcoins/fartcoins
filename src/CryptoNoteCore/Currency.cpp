@@ -97,11 +97,36 @@ bool Currency::generateGenesisBlock() {
 }
 
 bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins,
-  uint64_t fee, uint64_t& reward, int64_t& emissionChange) const {
+  uint64_t fee, uint64_t& reward, int64_t& emissionChange, uint32_t height) const {
   assert(alreadyGeneratedCoins <= m_moneySupply);
   assert(m_emissionSpeedFactor > 0 && m_emissionSpeedFactor <= 8 * sizeof(uint64_t));
 
-  uint64_t baseReward = (m_moneySupply - alreadyGeneratedCoins) >> m_emissionSpeedFactor;
+  uint64_t baseReward = 0;
+  if (height == 37) {
+    baseReward = 370000;
+  } else if (height == 370) {
+    baseReward = 3700000;
+  } else if (height == 3700) {
+    baseReward = 37000000;
+  } else if (height == 37000) {
+    baseReward = 370000000;
+  } else if (height == 137000) {
+    baseReward = 1370000000;
+  } else if (height == 370000) {
+    baseReward = 3700000000;
+  } else if (height == 5370000) {
+    baseReward = 5370000000;
+  } else if (height == 3700000) {
+    baseReward = 3700000000;
+  } else if (height < 8641) {
+    baseReward = 100000;
+  } else if (height < 48961) {
+    baseReward = 250000;
+  } else if (height < 135361) {
+    baseReward = 500000;
+  } else {
+    baseReward = 1000000;
+  }
 
   medianSize = std::max(medianSize, m_blockGrantedFullRewardZone);
   if (currentBlockSize > UINT64_C(2) * medianSize) {
@@ -146,7 +171,7 @@ bool Currency::constructMinerTx(uint32_t height, size_t medianSize, uint64_t alr
 
   uint64_t blockReward;
   int64_t emissionChange;
-  if (!getBlockReward(medianSize, currentBlockSize, alreadyGeneratedCoins, fee, blockReward, emissionChange)) {
+  if (!getBlockReward(medianSize, currentBlockSize, alreadyGeneratedCoins, fee, blockReward, emissionChange, height)) {
     logger(INFO) << "Block is too big";
     return false;
   }
